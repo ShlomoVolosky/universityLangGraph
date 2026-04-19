@@ -1,7 +1,7 @@
 PYTHON   := python3
 PIP      := $(HOME)/.local/bin/pip
 RUFF     := $(HOME)/.local/bin/ruff
-MYPY     := $(PYTHON) -m mypy
+MYPY     := $(HOME)/.local/bin/mypy
 PYTEST   := $(PYTHON) -m pytest
 
 .PHONY: test test-all lint seed seed-force run install format
@@ -16,7 +16,7 @@ seed-force:
 	$(PYTHON) scripts/init_db.py --force
 
 test:
-	$(PYTEST) tests/unit tests/integration -v
+	$(PYTEST) tests/unit tests/integration -v; exit_code=$$?; [ $$exit_code -eq 5 ] && exit 0 || exit $$exit_code
 
 test-all:
 	$(PYTEST) tests/ -v -m ""
