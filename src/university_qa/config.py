@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     # LangSmith tracing
     langsmith_tracing: bool = False
     langsmith_api_key: str | None = None
+    langsmith_endpoint: str | None = None
     langsmith_project: str = "university-qa-dev"
 
     model_config = {"env_file": ".env", "extra": "ignore"}

@@ -38,9 +38,23 @@ def _build_llm(settings: Settings):  # type: ignore[return]
 
 def _build_tracer(settings: Settings):  # type: ignore[return]
     if settings.langsmith_tracing:
+        import os
+
         from university_qa.adapters.langsmith_tracer import LangsmithTracer
 
-        return LangsmithTracer(project=settings.langsmith_project)
+        # LangGraph reads LANGSMITH_* from os.environ for auto-tracing; mirror
+        # whatever was loaded from .env so the EU endpoint is picked up too.
+        os.environ.setdefault("LANGSMITH_TRACING", "true")
+        if settings.langsmith_api_key:
+            os.environ.setdefault("LANGSMITH_API_KEY", settings.langsmith_api_key)
+        if settings.langsmith_endpoint:
+            os.environ.setdefault("LANGSMITH_ENDPOINT", settings.langsmith_endpoint)
+        os.environ.setdefault("LANGSMITH_PROJECT", settings.langsmith_project)
+
+        return LangsmithTracer(
+            project=settings.langsmith_project,
+            api_url=settings.langsmith_endpoint,
+        )
 
     from university_qa.adapters.noop_tracer import NoopTracer
 

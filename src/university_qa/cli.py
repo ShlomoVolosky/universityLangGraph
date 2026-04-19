@@ -1,8 +1,40 @@
 """CLI entry point: python -m university_qa.cli "<question>"."""
 
+from __future__ import annotations
+
 import argparse
 import json
 import sys
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from university_qa.config import Settings
+
+
+def _print_run_url(settings: Settings) -> None:
+    """Fetch and print the most recent LangSmith run URL for this project."""
+    try:
+        from langsmith import Client
+
+        client = Client(api_url=settings.langsmith_endpoint or None)
+        runs = list(
+            client.list_runs(
+                project_name=settings.langsmith_project,
+                execution_order=1,  # root runs only
+                limit=1,
+            )
+        )
+        if runs:
+            run = runs[0]
+            base = (settings.langsmith_endpoint or "https://smith.langchain.com").rstrip("/")
+            # EU endpoint is api.eu.smith.langchain.com; UI is eu.smith.langchain.com
+            ui_base = base.replace("eu.api.smith.langchain.com", "eu.smith.langchain.com")
+            ui_base = ui_base.replace("api.smith.langchain.com", "smith.langchain.com")
+            print(f"\nLangSmith run: {ui_base}/o/-/projects/p/{run.session_id}/r/{run.id}")
+        else:
+            print("\nLangSmith: no runs found yet (traces may still be flushing).")
+    except Exception as exc:
+        print(f"\nLangSmith URL lookup failed: {exc}")
 
 
 def main() -> None:
@@ -54,8 +86,13 @@ def main() -> None:
         debug = {k: v for k, v in final_state.items() if v is not None}
         print(json.dumps(debug, default=str, indent=2))
 
-    if args.trace:
-        print("\nLangSmith tracing: enable LANGSMITH_TRACING=true and LANGSMITH_API_KEY.")
+    if args.trace and settings.langsmith_tracing:
+        import time
+
+        time.sleep(3)  # allow background flush before querying
+        _print_run_url(settings)
+    elif args.trace:
+        print("\nLangSmith tracing is disabled (set LANGSMITH_TRACING=true to enable).")
 
 
 if __name__ == "__main__":

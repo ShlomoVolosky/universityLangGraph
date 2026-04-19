@@ -12,10 +12,10 @@ class LangsmithTracer(Tracer):
     custom metric spans (schema fetch, validation results, retry counts).
     """
 
-    def __init__(self, project: str | None = None) -> None:
+    def __init__(self, project: str | None = None, api_url: str | None = None) -> None:
         from langsmith import Client
 
-        self._client = Client()
+        self._client = Client(api_url=api_url) if api_url else Client()
         self._project = project
 
     @contextmanager
