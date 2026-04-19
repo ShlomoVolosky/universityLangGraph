@@ -143,6 +143,18 @@ def test_alter_table_rejected_as_non_select() -> None:
     assert result.is_non_select is True
 
 
+def test_attach_database_rejected_as_non_select() -> None:
+    result = bad('ATTACH DATABASE "/tmp/evil.db" AS evil')
+    assert result.ok is False
+    assert result.is_non_select is True
+
+
+def test_pragma_rejected_as_non_select() -> None:
+    result = bad("PRAGMA journal_mode=WAL")
+    assert result.ok is False
+    assert result.is_non_select is True
+
+
 # ---------------------------------------------------------------------------
 # Rejected: forbidden functions
 # ---------------------------------------------------------------------------

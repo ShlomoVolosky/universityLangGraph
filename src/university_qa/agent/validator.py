@@ -10,7 +10,9 @@ _FORBIDDEN_NODE_TYPES = (
     exp.Drop,
     exp.Alter,
     exp.Create,
-    exp.Command,  # covers ATTACH, PRAGMA, and other raw commands
+    exp.Attach,  # ATTACH DATABASE — explicitly named in §7.4/§7.5
+    exp.Pragma,  # PRAGMA — explicitly named in §7.4/§7.5
+    exp.Command,  # catch-all for other raw commands sqlglot surfaces
 )
 
 _FORBIDDEN_FUNCTIONS = frozenset({"load_extension", "readfile", "writefile"})
