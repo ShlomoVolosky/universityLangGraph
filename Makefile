@@ -4,7 +4,7 @@ RUFF     := $(HOME)/.local/bin/ruff
 MYPY     := $(HOME)/.local/bin/mypy
 PYTEST   := $(PYTHON) -m pytest
 
-.PHONY: test test-all lint seed seed-force run install format
+.PHONY: test test-all coverage lint seed seed-force run install format
 
 install:
 	$(PIP) install -e ".[dev]"
@@ -20,6 +20,9 @@ test:
 
 test-all:
 	$(PYTEST) tests/ -v -m ""
+
+coverage:
+	$(PYTEST) tests/unit tests/integration -q --cov=university_qa --cov-report=term-missing
 
 lint:
 	$(RUFF) check .

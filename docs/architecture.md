@@ -125,3 +125,8 @@ Only `composition.py` changes. Steps:
 
 No agent code, no prompt, no port, no test fixture changes. The architecture test
 will still pass because `agent/` never imported `sqlite3` or any adapter type.
+
+**Verified by inspection:** running
+`grep -rn "sqlite3\|SqliteExecutor\|SqliteSchemaProvider" src/university_qa/agent/ src/university_qa/domain/ src/university_qa/ports/`
+returns zero matches. Every infrastructure name appears exclusively in
+`composition.py` and `adapters/`. This is a structural property, not a convention.
